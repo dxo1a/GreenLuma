@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 400;
+  src: local(""),
+    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+body,
+#app {
+  height: 100%;
+  /* background-color: rgb(39, 47, 63) */
+  /* background-color: rgb(60, 100, 0); */
+}
+html {
+  height: 100%;
+}
+button {
+  cursor: pointer;
+}
+.n-config-provider {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+.n-layout-scroll-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Появление/исчезание элементов списка */
+.games-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.games-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.games-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.games-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.games-enter-active {
+  transition: all 220ms cubic-bezier(.2,.8,.2,1);
+}
+.games-leave-active {
+  display: none;
+}
+
+/* Анимируем перемещение элементов (FLIP move) — это то, что сгладит сдвиг при изменении размера кнопки */
+.games-move {
+  transition: transform 300ms cubic-bezier(.2,.8,.2,1);
+  will-change: transform;
+}
+
+/* Доп. мелочь: чтобы padding/width анимировались предсказуемо */
+.game-item button {
+  /* Не обязательно, но помогает браузеру оптимизировать */
+  will-change: padding, width, background-color, transform;
+}
