@@ -1,8 +1,8 @@
 <template>
   <div class="text-white">
     <header class="flex justify-between items-center bg-[rgb(19,26,37)]" style="--wails-draggable: drag">
-      <div class="w-fit flex gap-1 items-center ml-2">
-        <img class="w-[25px] h-[25px] mt-2 mb-2" src="/src/assets/images/appicon.png" />
+      <div class="w-fit flex gap-2 items-center ml-2">
+        <img class="w-[18px] h-[18px] mt-2 mb-2" src="/src/assets/images/appicon.png" />
         <span class="text-[18px] font-semibold pointer-events-none">GreenLuma</span>
       </div>
       <div class="flex items-center">
