@@ -7,7 +7,11 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "dxo1a",
-    "email": "gafar13278@gmail.com"
+    "name": "dxo1a"
+  },
+  "info": {
+    "productVersion": "1.0.0",
+    "comments": "u know what it is",
+    "copyright": "dxo1a"
   }
 }
