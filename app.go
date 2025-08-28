@@ -74,23 +74,6 @@ func cachePath() (string, error) {
 	return xdg.CacheFile("GreenLuma/cache.json")
 }
 
-func (a *App) SelectSteamDir() (string, error) {
-	dir, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Выберите директорию Steam",
-	})
-	if err != nil || dir == "" {
-		return "", errors.New("директория не выбрана")
-	}
-
-	if !a.validateSteamDir(dir) {
-		return "", errors.New("в выбранной директории нет steam.exe")
-	}
-
-	a.SteamDir = dir
-	a.saveConfig()
-	return dir, nil
-}
-
 func (a *App) GetInstalledGames() ([]Game, error) {
 	if a.SteamDir == "" {
 		fmt.Println("SteamDir пустой")
@@ -267,12 +250,29 @@ func (a *App) AddGame(appid int) error {
 	return os.WriteFile(filepath.Join(appListDir, fmt.Sprintf("%d.txt", index)), []byte(strconv.Itoa(appid)), 0644)
 }
 
-func (a *App) GetSteamDir() (string, error) {
-	for !a.validateSteamDir(a.SteamDir) {
-		a.SelectSteamDir()
+func (a *App) SelectSteamDir() (string, error) {
+	dir, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Выберите директорию Steam",
+	})
+	if err != nil || dir == "" {
+		return "", errors.New("директория не выбрана")
 	}
 
-	return a.SteamDir, nil
+	if !a.validateSteamDir(dir) {
+		return "", errors.New("в выбранной директории нет steam.exe")
+	}
+
+	a.SteamDir = dir
+	a.saveConfig()
+	return dir, nil
+}
+
+func (a *App) GetSteamDir() (string, error) {
+	if a.validateSteamDir(a.SteamDir) {
+		return a.SteamDir, nil
+	}
+
+	return "", errors.New("SteamDir не выбран или неверный")
 }
 
 func (a *App) IsDllInstalled() (bool, error) {
