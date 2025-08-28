@@ -76,12 +76,12 @@ func cachePath() (string, error) {
 
 func (a *App) GetInstalledGames() ([]Game, error) {
 	if a.SteamDir == "" {
-		fmt.Println("SteamDir пустой")
-		return nil, errors.New("SteamDir не выбран")
+		fmt.Println("SteamDir is null/empty")
+		return nil, errors.New("SteamDir is not selected")
 	}
 
 	if len(gameCache) == 0 {
-		fmt.Println("Загружаем кэш с диска...")
+		fmt.Println("Loading the cache from the disk...")
 		loadCacheFromDisk()
 	}
 
@@ -130,7 +130,7 @@ func (a *App) GetInstalledGames() ([]Game, error) {
 
 func (a *App) RemoveGame(appid int) error {
 	if a.SteamDir == "" {
-		return errors.New("SteamDir не выбран")
+		return errors.New("SteamDir is not selected")
 	}
 
 	appListDir := filepath.Join(a.SteamDir, "AppList")
@@ -252,14 +252,14 @@ func (a *App) AddGame(appid int) error {
 
 func (a *App) SelectSteamDir() (string, error) {
 	dir, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Выберите директорию Steam",
+		Title: "Select Steam directory",
 	})
 	if err != nil || dir == "" {
-		return "", errors.New("директория не выбрана")
+		return "", errors.New("the directory is not selected")
 	}
 
 	if !a.validateSteamDir(dir) {
-		return "", errors.New("в выбранной директории нет steam.exe")
+		return "", errors.New("in the selected directory there is no steam.exe")
 	}
 
 	a.SteamDir = dir
@@ -272,12 +272,12 @@ func (a *App) GetSteamDir() (string, error) {
 		return a.SteamDir, nil
 	}
 
-	return "", errors.New("SteamDir не выбран или неверный")
+	return "", errors.New("SteamDir is not selected or incorrect")
 }
 
 func (a *App) IsDllInstalled() (bool, error) {
 	if a.SteamDir == "" {
-		return false, errors.New("SteamDir не выбран")
+		return false, errors.New("SteamDir is not selected")
 	}
 	dllPath := filepath.Join(a.SteamDir, "user32.dll")
 	if _, err := os.Stat(dllPath); err == nil {
@@ -288,7 +288,7 @@ func (a *App) IsDllInstalled() (bool, error) {
 
 func (a *App) InstallDll() error {
 	if a.SteamDir == "" {
-		return errors.New("SteamDir не выбран")
+		return errors.New("SteamDir is not selected")
 	}
 	dllPath := filepath.Join(a.SteamDir, "user32.dll")
 	err := os.WriteFile(dllPath, user32dll, 0644)
@@ -300,30 +300,30 @@ func (a *App) InstallDll() error {
 
 func (a *App) RemoveDll() error {
 	if a.SteamDir == "" {
-		return errors.New("SteamDir не выбран")
+		return errors.New("SteamDir is not selected")
 	}
 	dllPath := filepath.Join(a.SteamDir, "user32.dll")
 	if _, err := os.Stat(dllPath); err != nil {
-		return errors.New("dll не установлен")
+		return errors.New("dll is not installed")
 	}
 	return os.Remove(dllPath)
 }
 
 func (a *App) DeleteSteamCache() (string, error) {
 	if a.SteamDir == "" {
-		return "", errors.New("SteamDir не выбран")
+		return "", errors.New("SteamDir is not selected")
 	}
 
 	cacheFile := filepath.Join(a.SteamDir, "appcache", "packageinfo.vdf")
 	if _, err := os.Stat(cacheFile); os.IsNotExist(err) {
-		return "Кэш уже очищен", nil
+		return "Cache has already been cleared", nil
 	}
 
 	if err := os.Remove(cacheFile); err != nil {
 		return "", err
 	}
 
-	return "Кэш очищен!", nil
+	return "Cache is cleared!", nil
 }
 
 func (a *App) validateSteamDir(dir string) bool {
@@ -409,19 +409,19 @@ func (a *App) saveConfig() {
 func (a *App) loadConfig() {
 	path, err := configPath()
 	if err != nil {
-		fmt.Println("Ошибка определения пути конфига:", err)
+		fmt.Println("Error defining config path:", err)
 		return
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Конфиг не найден, будет создан новый:", err)
+		fmt.Println("Config was not found, a new one will be created:", err)
 		return
 	}
 
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
-		fmt.Println("Ошибка сериализации конфига:", err)
+		fmt.Println("Config serialization error:", err)
 		return
 	}
 	a.SteamDir = cfg.SteamDir
@@ -430,7 +430,7 @@ func (a *App) loadConfig() {
 func (a *App) saveConfig() {
 	path, err := configPath()
 	if err != nil {
-		fmt.Println("Ошибка определения пути конфига:", err)
+		fmt.Println("Error defining config path:", err)
 		return
 	}
 
@@ -438,12 +438,12 @@ func (a *App) saveConfig() {
 	data, _ := json.MarshalIndent(cfg, "", "  ")
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		fmt.Println("Ошибка создания папки конфига:", err)
+		fmt.Println("Error creating config folder:", err)
 		return
 	}
 
 	if err := os.WriteFile(path, data, 0644); err != nil {
-		fmt.Println("Ошибка сохранения конфига:", err)
+		fmt.Println("Error saving config:", err)
 	}
 }
 
@@ -486,19 +486,19 @@ func saveCacheToDisk() {
 func loadCacheFromDisk() {
 	path, err := cachePath()
 	if err != nil {
-		fmt.Println("Ошибка определения пути кэша:", err)
+		fmt.Println("Cache path detection error:", err)
 		return
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Ошибка чтения кэша:", err)
+		fmt.Println("Cache reading error:", err)
 		return
 	}
 
 	var games []Game
 	if err := json.Unmarshal(data, &games); err != nil {
-		fmt.Println("Ошибка сериализации кэша:", err)
+		fmt.Println("Cache serialization error:", err)
 		return
 	}
 
@@ -513,7 +513,7 @@ func loadCacheFromDisk() {
 func saveCacheToDisk() {
 	path, err := cachePath()
 	if err != nil {
-		fmt.Println("Ошибка определения пути кэша:", err)
+		fmt.Println("Cache path detection error:", err)
 		return
 	}
 
@@ -528,11 +528,11 @@ func saveCacheToDisk() {
 	data, _ := json.MarshalIndent(games, "", "  ")
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		fmt.Println("Ошибка создания папки кэша:", err)
+		fmt.Println("Cache folder creation error:", err)
 		return
 	}
 
 	if err := os.WriteFile(path, data, 0644); err != nil {
-		fmt.Println("Ошибка сохранения кэша:", err)
+		fmt.Println("Cache saving error:", err)
 	}
 }

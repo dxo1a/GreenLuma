@@ -21,9 +21,9 @@
       <!-- <h1 class="text-xl font-bold text-center w-full pb-2.5">GreenLuma</h1> -->
 
       <div v-if="!steamDir" class="mt-4">
-        <p>Пожалуйста, выберите папку Steam...</p>
+        <p>Please select Steam folder...</p>
         <button @click="selectSteamDir" class="px-3 py-1 rounded mt-2 bg-gray-600 active:bg-gray-800 hover:bg-gray-700">
-          Указать папку Steam
+          Choose Steam folder
         </button>
       </div>
 
@@ -34,7 +34,7 @@
         </button> -->
 
         <div class="flex gap-2 mb-2">
-          <input v-model="searchQuery" @keyup.enter="searchGames" type="text" placeholder="Поиск" class="flex-1 p-2 rounded bg-[rgb(35,46,66)] border border-gray-700 focus:border-white outline-none transition-colors duration-300"/>
+          <input v-model="searchQuery" @keyup.enter="searchGames" type="text" placeholder="Search..." class="flex-1 p-2 rounded bg-[rgb(35,46,66)] border border-gray-700 focus:border-white outline-none transition-colors duration-300"/>
           <button @click="searchGames"
           class="px-2 py-0.5 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 flex items-center justify-center"
           >
@@ -52,7 +52,7 @@
         </div>
 
         <div v-if="games.length === 0" class="mt-4">
-          <p>Нет игр.</p>
+          <p>There are no games.</p>
         </div>
 
         <transition-group name="games" tag="div" class="space-y-2">
@@ -85,14 +85,14 @@
           <span class="font-semibold">
             {{ tempStatusText }}
           </span>
-          <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Установить GreenLuma">
+          <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Install GreenLuma">
             <PackagePlus :size="15" />
           </button>
           <div v-else>
-            <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Очистить кэш Steam">
+            <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Clear Steam cache">
               <Bubbles :size="15" />
             </button>
-            <button @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Удалить GreenLuma">
+            <button @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Delete GreenLuma">
               <PackageMinus :size="15" />
             </button>
           </div>
@@ -151,14 +151,14 @@ onMounted(async () => {
       await loadGames();
     }
   } catch (e) {
-    console.warn("SteamDir пустой или ошибка:", e);
+    console.warn("SteamDir is empty or error:", e);
     
   }
 
   try {
     isDllInstalled.value = await IsDllInstalled()
   } catch (e) {
-    console.error("Ошибка проверки наличия dll:", e)
+    console.error("Error checking for a dll:", e)
   }
 })
 
@@ -169,7 +169,7 @@ async function selectSteamDir() {
     await checkDll()
     await loadGames();
   } catch (err: any) {
-    alert(err.message || "Ошибка при выборе папки Steam\nERROR: " + err);
+    alert(err.message || "Error when selecting the Steam folder\nERROR: " + err);
   }
 }
 
@@ -178,7 +178,7 @@ async function loadGames() {
     const installed = await GetInstalledGames();
     games.value = sortGames(installed.map(g => ({ ...g, installed: true })));
   } catch (e) {
-    console.error("Ошибка загрузки игр:", e);
+    console.error("Game loading error:", e);
   }
 }
 
@@ -203,7 +203,7 @@ async function searchGames() {
       installed: installedIds.has(Number(g.appid)),
     })));
   } catch (e) {
-    console.error("Ошибка поиска игр:", e);
+    console.error("Game search error:", e);
   } finally {
     isSearching.value = false;
   }
@@ -211,11 +211,11 @@ async function searchGames() {
 
 async function addGame(game: any) {
   try {
-    console.log("Добавляем игру с appid:", game.appid)
+    console.log("Adding a game with an appid:", game.appid)
     await AddGame(Number(game.appid));
     game.installed = true;
   } catch (e) {
-    console.error("Ошибка добавления игры:", e);
+    console.error("Error adding the game:", e);
   }
 }
 
@@ -225,7 +225,7 @@ async function removeGame(appid: number) {
     const game = games.value.find(g => g.appid === appid)
     if (game) game.installed = false;
   } catch (e) {
-    console.error("Ошибка удаления игры:", e);
+    console.error("Game deletion error:", e);
   }
 }
 
@@ -242,8 +242,8 @@ async function installDll() {
     await InstallDll()
     await checkDll()
   } catch (e) {
-    console.error("Ошибка установки dll:", e)
-    alert("Не удалось установить user32.dll\nERROR: " + e)
+    console.error("dll installation error:", e)
+    alert("Couldn't install user32.dll\nERROR: " + e)
   }
 }
 
@@ -252,8 +252,8 @@ async function removeDll() {
     await RemoveDll()
     await checkDll()
   } catch (e) {
-    console.error("Ошибка удаления dll:", e)
-    alert("Не удалось удалить user32.dll\nERROR: " + e)
+    console.error("dll deletion error:", e)
+    alert("Couldn't delete user32.dll\nERROR: " + e)
   }
 }
 
@@ -266,7 +266,7 @@ async function clearCache() {
       tempStatusText.value = "";
     }, 3000);
   } catch (e: any) {
-    tempStatusText.value = "Ошибка очистки!";
+    tempStatusText.value = "Error deleting the cache!";
     console.error(e);
     setTimeout(() => {
       tempStatusText.value = "";
