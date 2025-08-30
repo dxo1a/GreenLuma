@@ -266,6 +266,11 @@ func (a *App) SearchGames(query string) ([]Game, error) {
 
 func (a *App) AddGame(appid int) error {
 	appListDir := filepath.Join(a.SteamDir, "AppList")
+
+	if err := os.MkdirAll(appListDir, 0755); err != nil {
+		return fmt.Errorf("не удалось создать папку AppList: %v", err)
+	}
+
 	// ищем новый индекс
 	files, _ := os.ReadDir(appListDir)
 	index := len(files)
