@@ -88,7 +88,9 @@ func (a *App) GetInstalledGames() ([]Game, error) {
 	appListDir := filepath.Join(a.SteamDir, "AppList")
 	entries, err := os.ReadDir(appListDir)
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			return []Game{}, nil
+		}
 	}
 
 	var wg sync.WaitGroup
@@ -216,7 +218,7 @@ func (a *App) SearchGames(query string) ([]Game, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
-		return nil, fmt.Errorf("steam storesearch: status %d: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("ошибка поиска в Steam: статус %d: %s", resp.StatusCode, string(body))
 	}
 
 	var result struct {
@@ -228,6 +230,26 @@ func (a *App) SearchGames(query string) ([]Game, error) {
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
+	}
+
+	installedApps := make(map[int]bool)
+	if a.SteamDir != "" {
+		appListDir := filepath.Join(a.SteamDir, "AppList")
+		entries, err := os.ReadDir(appListDir)
+		if err == nil {
+			for _, entry := range entries {
+				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".txt") {
+					path := filepath.Join(appListDir, entry.Name())
+					data, err := os.ReadFile(path)
+					if err != nil {
+						continue
+					}
+					if appid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+						installedApps[appid] = true
+					}
+				}
+			}
+		}
 	}
 
 	games := make([]Game, 0, len(result.Items))
@@ -288,8 +310,14 @@ func (a *App) IsDllInstalled() (bool, error) {
 
 func (a *App) InstallDll() error {
 	if a.SteamDir == "" {
-		return errors.New("SteamDir is not selected")
+		return errors.New("SteamDir не выбран")
 	}
+
+	appListDir := filepath.Join(a.SteamDir, "AppList")
+	if err := os.MkdirAll(appListDir, 0755); err != nil {
+		return fmt.Errorf("не удалось создать папку AppList: %v", err)
+	}
+
 	dllPath := filepath.Join(a.SteamDir, "user32.dll")
 	err := os.WriteFile(dllPath, user32dll, 0644)
 	if err != nil {
