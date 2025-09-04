@@ -10,14 +10,17 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/adrg/xdg"
+	"github.com/shirou/gopsutil/v3/process"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -359,6 +362,54 @@ func (a *App) DeleteSteamCache() (string, error) {
 	return "Cache is cleared!", nil
 }
 
+func (a *App) RestartSteam() (string, error) {
+	if !a.validateSteamDir(a.SteamDir) {
+		return "", errors.New("SteamDir os not selected")
+	}
+
+	running, err := isSteamRunning()
+	if err != nil {
+		return "", nil
+	}
+
+	if !running {
+		return "Steam is not running", nil
+	}
+
+	procs, _ := process.Processes()
+	for _, p := range procs {
+		name, _ := p.Name()
+		if strings.EqualFold(name, "steam.exe") {
+			_ = p.Kill()
+		}
+	}
+
+	time.Sleep(3 * time.Second)
+
+	cmd := exec.Command(filepath.Join(a.SteamDir, "steam.exe"))
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Start(); err != nil {
+		return "", fmt.Errorf("failed to launch Steam: %v", err)
+	}
+
+	return "Steam is restarted", nil
+}
+
+func isSteamRunning() (bool, error) {
+	procs, err := process.Processes()
+	if err != nil {
+		return false, err
+	}
+
+	for _, p := range procs {
+		name, _ := p.Name()
+		if strings.EqualFold(name, "steam.exe") {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (a *App) validateSteamDir(dir string) bool {
 	if _, err := os.Stat(filepath.Join(dir, "steam.exe")); errors.Is(err, os.ErrNotExist) {
 		return false
@@ -417,28 +468,6 @@ func fetchSteamAppInfo(appid int) (Game, error) {
 	return game, nil
 }
 
-/* Old config funcs
-func (a *App) loadConfig() {
-	data, err := os.ReadFile(configFileName)
-	if err != nil {
-		fmt.Println("Ошибка при загрузке файла конфига:", err)
-		return
-	}
-	var cfg Config
-	if err := json.Unmarshal(data, &cfg); err != nil {
-		fmt.Println("Ошибка при сериализации файла конфига:", err)
-		return
-	}
-	a.SteamDir = cfg.SteamDir
-}
-
-func (a *App) saveConfig() {
-	cfg := Config{SteamDir: a.SteamDir}
-	data, _ := json.MarshalIndent(cfg, "", "  ")
-	os.WriteFile(configFileName, data, 0644)
-}
-*/
-
 func (a *App) loadConfig() {
 	path, err := configPath()
 	if err != nil {
@@ -479,42 +508,6 @@ func (a *App) saveConfig() {
 		fmt.Println("Error saving config:", err)
 	}
 }
-
-/* Old cache funcs
-func loadCacheFromDisk() {
-	data, err := os.ReadFile(cacheFile)
-	if err != nil {
-		fmt.Println("Ошибка при чтении файла кэша:", err)
-		return
-	}
-
-	var games []Game
-	if err := json.Unmarshal(data, &games); err != nil {
-		fmt.Println("Ошибка при сериализации игр из кэша:", err)
-		return
-	}
-
-	cacheMutex.Lock()
-	defer cacheMutex.Unlock()
-	for _, g := range games {
-		gameCache[g.AppID] = g
-		cacheExpiry[g.AppID] = time.Now().Add(cacheTTL)
-	}
-}
-
-func saveCacheToDisk() {
-	cacheMutex.Lock()
-	defer cacheMutex.Unlock()
-
-	games := make([]Game, 0, len(gameCache))
-	for _, g := range gameCache {
-		games = append(games, g)
-	}
-
-	data, _ := json.MarshalIndent(games, "", "  ")
-	os.WriteFile(cacheFile, data, 0644)
-}
-*/
 
 func loadCacheFromDisk() {
 	path, err := cachePath()

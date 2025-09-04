@@ -24,9 +24,9 @@ body,
 html {
   height: 100%;
 }
-button {
+/* button {
   cursor: pointer;
-}
+} */
 .n-config-provider {
   height: 100%;
 

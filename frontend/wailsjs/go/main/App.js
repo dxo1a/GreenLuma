@@ -34,6 +34,10 @@ export function RemoveGame(arg1) {
   return window['go']['main']['App']['RemoveGame'](arg1);
 }
 
+export function RestartSteam() {
+  return window['go']['main']['App']['RestartSteam']();
+}
+
 export function SearchGames(arg1) {
   return window['go']['main']['App']['SearchGames'](arg1);
 }

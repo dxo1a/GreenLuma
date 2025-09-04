@@ -6,37 +6,30 @@
         <span class="text-[18px] font-semibold pointer-events-none">GreenLuma</span>
       </div>
       <div class="flex items-center">
-        <button @click="WindowMinimise" class="p-2">
+        <button @click="WindowMinimise" class="p-2 cursor-pointer">
           <Minus :size="15"/>
         </button>
-        <button @click="WindowToggleMaximise" class="p-2">
+        <button @click="WindowToggleMaximise" class="p-2 cursor-pointer">
           <Maximize2 :size="15"/>
         </button>
-        <button @click="Quit" class="p-2">
+        <button @click="Quit" class="p-2 cursor-pointer">
           <X :size="15"/>
         </button>
       </div>
     </header>
     <div class="p-4">
-      <!-- <h1 class="text-xl font-bold text-center w-full pb-2.5">GreenLuma</h1> -->
-
       <div v-if="!steamDir" class="mt-4">
         <p>Please select Steam folder...</p>
-        <button @click="selectSteamDir" class="px-3 py-1 rounded mt-2 bg-gray-600 active:bg-gray-800 hover:bg-gray-700">
+        <button @click="selectSteamDir" class="px-3 py-1 rounded mt-2 bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer">
           Choose Steam folder
         </button>
       </div>
 
       <div v-else>
-        <!-- <p class="mb-2">Steam папка: {{ steamDir }}</p>
-        <button @click="selectSteamDir" class="px-3 py-1 rounded mb-2">
-          Изменить папку Steam
-        </button> -->
-
         <div class="flex gap-2 mb-2">
           <input v-model="searchQuery" @keyup.enter="searchGames" type="text" placeholder="Search..." class="flex-1 p-2 rounded bg-[rgb(35,46,66)] border border-gray-700 focus:border-white outline-none transition-colors duration-300"/>
           <button @click="searchGames"
-          class="px-2 py-0.5 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 flex items-center justify-center"
+          class="px-2 py-0.5 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 flex items-center justify-center cursor-pointer"
           >
             <template v-if="isSearching">
               <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -48,7 +41,7 @@
               <Search :size="20" />
             </template>
           </button>
-          <button v-if="!searchQuery.trim()" @click="loadGames" class="px-2 py-0.5 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700"><RefreshCcw :size="20" /></button>
+          <button v-if="!searchQuery.trim()" @click="loadGames" class="px-2 py-0.5 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer"><RefreshCcw :size="20" /></button>
         </div>
 
         <div v-if="games.length === 0" class="mt-4">
@@ -57,7 +50,7 @@
 
         <transition-group name="games" tag="div" class="space-y-2">
           <div v-for="game in games" :key="game.appid" class="flex items-stretch border border-gray-700 bg-[rgb(35,46,66)] shadow-xl mt-2 rounded overflow-hidden">
-            <!-- левая часть -->
+            <!-- leftside -->
             <div class="flex items-center gap-3 flex-1 p-2">
               <img :src="game.image" class="w-20 h-10 object-cover rounded" />
               <div>
@@ -66,12 +59,12 @@
               </div>
             </div>
 
-            <!-- правая часть -->
+            <!-- rightside -->
             <div class="flex">
               <button @click="game.installed ? removeGame(game.appid) : addGame(game)" :class="[
                 'transition-all duration-300 ease-in-out flex items-center justify-center',
                 game.installed
-                ? 'bg-red-400 active:bg-red-600, hover:bg-red-500 px-2' : 'bg-[rgb(90,150,0)] active:bg-[rgb(60,100,0)] hover:bg-[rgb(75,125,0)] px-4'
+                ? 'bg-red-400 active:bg-red-600, hover:bg-red-500 px-2 cursor-pointer' : 'bg-[rgb(90,150,0)] active:bg-[rgb(60,100,0)] hover:bg-[rgb(75,125,0)] px-4 cursor-pointer'
               ]" style="display: inline-flex;">
                 <component :is="game.installed ? CopyMinus : CopyPlus" :size="20" />
               </button>
@@ -80,19 +73,38 @@
         </transition-group>
 
 
-        <!-- статус бар -->
+        <!-- statusbar -->
         <div class="fixed bottom-0 left-0 w-full h-8 flex items-center justify-between pl-1.5 pr-1.5" :class="isDllInstalled ? 'bg-[rgb(90,150,0)]' : 'bg-red-400'">
           <span class="font-semibold">
             {{ tempStatusText }}
           </span>
-          <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Install GreenLuma">
+          <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Install GreenLuma">
             <PackagePlus :size="15" />
           </button>
           <div v-else>
-            <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Clear Steam cache">
+            <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Clear Steam cache">
               <Bubbles :size="15" />
             </button>
-            <button @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700" title="Delete GreenLuma">
+            <button 
+              @click="restartSteam" 
+              :disabled="isSteamRestarting" 
+              class="px-3 py-1 rounded mr-1.5 bg-gray-600 cursor-pointer
+                    disabled:opacity-50 disabled:cursor-wait 
+                    disabled:hover:bg-gray-600 disabled:active:bg-gray-600
+                    active:bg-gray-800 hover:bg-gray-700" 
+              title="Restart Steam"
+            >
+              <template v-if="isSteamRestarting">
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                </svg>
+              </template>
+              <template v-else>
+                <RefreshCcw :size="15"/>
+              </template>
+            </button>
+            <button @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Delete GreenLuma">
               <PackageMinus :size="15" />
             </button>
           </div>
@@ -119,7 +131,8 @@ import {
   IsDllInstalled,
   InstallDll,
   RemoveDll,
-  DeleteSteamCache
+  DeleteSteamCache,
+  RestartSteam
 } from "../wailsjs/go/main/App.js";
 import {
   Search,
@@ -141,6 +154,7 @@ const isDllInstalled = ref(false);
 const tempStatusText = ref("");
 
 const isSearching = ref(false);
+const isSteamRestarting = ref(false);
 
 onMounted(async () => {
   console.log('Vue mounted');
@@ -271,6 +285,32 @@ async function clearCache() {
     setTimeout(() => {
       tempStatusText.value = "";
     }, 3000)
+  }
+}
+
+async function restartSteam() {
+  if (isSteamRestarting.value) return;
+
+  isSteamRestarting.value = true;
+  try {
+    const msg = await RestartSteam();
+    tempStatusText.value = msg;
+
+    if (msg === "Steam is restarted") {
+      setTimeout(() => {
+        tempStatusText.value = "";
+        isSteamRestarting.value = false;
+      }, 3000);
+    } else {
+      isSteamRestarting.value = false;
+    }
+  } catch (e: any) {
+    tempStatusText.value = "Error when restarting Steam!";
+    console.error(e);
+    setTimeout(() => {
+      tempStatusText.value = "";
+    }, 3000);
+    isSteamRestarting.value = false;
   }
 }
 

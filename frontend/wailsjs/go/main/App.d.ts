@@ -18,6 +18,8 @@ export function RemoveDll():Promise<void>;
 
 export function RemoveGame(arg1:number):Promise<void>;
 
+export function RestartSteam():Promise<string>;
+
 export function SearchGames(arg1:string):Promise<Array<main.Game>>;
 
 export function SelectSteamDir():Promise<string>;
