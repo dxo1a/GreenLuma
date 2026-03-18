@@ -2,3 +2,4 @@ build/bin
 frontend/node_modules
 frontend/dist
 /assets
+frontend/dist-electron

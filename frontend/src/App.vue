@@ -1,6 +1,6 @@
 <template>
-  <div class="text-white">
-    <header class="flex justify-between items-center bg-[rgb(19,26,37)]" style="--wails-draggable: drag">
+  <div class="text-white no-scrollbar">
+    <header class="fixed top-0 left-0 right-0 flex justify-between items-center bg-[rgb(19,26,37)]" style="--wails-draggable: drag">
       <div class="w-fit flex gap-2 items-center ml-2">
         <img class="w-[18px] h-[18px] mt-2 mb-2" src="/src/assets/images/appicon.png" />
         <span class="text-[18px] font-semibold pointer-events-none">GreenLuma</span>
@@ -71,44 +71,44 @@
             </div>
           </div>
         </transition-group>
+      </div>
+    </div>
 
-
-        <!-- statusbar -->
-        <div class="fixed bottom-0 left-0 w-full h-8 flex items-center justify-between pl-1.5 pr-1.5" :class="isDllInstalled ? 'bg-[rgb(90,150,0)]' : 'bg-red-400'">
-          <span class="font-semibold">
+    <!-- statusbar -->
+    <div class="fixed bottom-0 left-0 w-full h-8 flex items-center justify-between pl-1.5 pr-1.5" :class="isDllInstalled ? 'bg-[rgb(90,150,0)]' : 'bg-red-400'">
+          <span>
             {{ tempStatusText }}
           </span>
-          <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Install GreenLuma">
-            <PackagePlus :size="15" />
-          </button>
-          <div v-else>
-            <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Clear Steam cache">
-              <Bubbles :size="15" />
-            </button>
-            <button 
-              @click="restartSteam" 
-              :disabled="isSteamRestarting" 
-              class="px-3 py-1 rounded mr-1.5 bg-gray-600 cursor-pointer
-                    disabled:opacity-50 disabled:cursor-wait 
+      <div class="flex items-center">
+        <button @click="clearCache" class="px-3 py-1 rounded mr-1.5 bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Clear Steam cache">
+          <Bubbles :size="15" />
+        </button>
+        <button
+            @click="restartSteam"
+            :disabled="isSteamRestarting"
+            class="px-3 py-1 rounded mr-1.5 bg-gray-600 cursor-pointer
+                    disabled:opacity-50 disabled:cursor-wait
                     disabled:hover:bg-gray-600 disabled:active:bg-gray-600
-                    active:bg-gray-800 hover:bg-gray-700" 
-              title="Restart Steam"
-            >
-              <template v-if="isSteamRestarting">
-                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-                </svg>
-              </template>
-              <template v-else>
-                <RefreshCcw :size="15"/>
-              </template>
-            </button>
-            <button @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Delete GreenLuma">
-              <PackageMinus :size="15" />
-            </button>
-          </div>
-        </div>
+                    active:bg-gray-800 hover:bg-gray-700"
+            title="Restart Steam"
+        >
+          <template v-if="isSteamRestarting">
+            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+            </svg>
+          </template>
+          <template v-else>
+            <RefreshCcw :size="15"/>
+          </template>
+        </button>
+
+        <button v-if="!isDllInstalled" @click="installDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Install GreenLuma">
+          <PackagePlus :size="15" />
+        </button>
+          <button v-else @click="removeDll" class="px-3 py-1 rounded bg-gray-600 active:bg-gray-800 hover:bg-gray-700 cursor-pointer" title="Delete GreenLuma">
+            <PackageMinus :size="15" />
+          </button>
       </div>
     </div>
   </div>
@@ -255,8 +255,14 @@ async function installDll() {
   try {
     await InstallDll()
     await checkDll()
+    if (isDllInstalled) {
+      tempStatusText.value = "Installed"
+      setTimeout(() => {
+        tempStatusText.value = "";
+      }, 3000);
+    }
   } catch (e) {
-    console.error("dll installation error:", e)
+    console.error("dll error:", e)
     alert("Couldn't install user32.dll\nERROR: " + e)
   }
 }
