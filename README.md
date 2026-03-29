@@ -16,4 +16,4 @@ The project was made for myself and I will update the releases as needed.
 # Statistics
 ![GreenLuma downloads](https://img.shields.io/github/downloads/dxo1a/GreenLuma/total?style=flat-square) ![GreenLuma repo stars](https://img.shields.io/github/stars/dxo1a/GreenLuma?style=flat-square)
 
-<img src="https://api.star-history.com/svg?repos=dxo1a/GreenLuma&type=Date" alt="Star History" />
+<img src="https://api.star-history.com/svg?repos=dxo1a/GreenLuma&type=Date&theme=dark" alt="Star History" />
